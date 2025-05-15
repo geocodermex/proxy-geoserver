@@ -1,32 +1,27 @@
-import fetch from 'node-fetch';
+const axios = require('axios');
 
-export async function handler(event) {
+exports.handler = async (event) => {
     const { path, rawQuery } = event;
 
     const dynamicPath = path.replace('/.netlify/functions/proxy/', '');
-
     const baseUrl = `http://ec2-50-16-5-92.compute-1.amazonaws.com:8080/geoserver/${dynamicPath}`;
     const url = rawQuery ? `${baseUrl}?${rawQuery}` : baseUrl;
 
     try {
-        const response = await fetch(url);
-        const contentType = response.headers.get('content-type');
-        const buffer = await response.buffer();
-
+        const response = await axios.get(url, { responseType: 'arraybuffer' });
         return {
             statusCode: 200,
             headers: {
-                'Content-Type': contentType,
+                'Content-Type': response.headers['content-type'],
                 'Access-Control-Allow-Origin': '*',
             },
-            body: buffer.toString('base64'),
+            body: Buffer.from(response.data, 'binary').toString('base64'),
             isBase64Encoded: true,
         };
-
     } catch (error) {
         return {
             statusCode: 500,
             body: JSON.stringify({ error: 'Proxy failed', details: error.message }),
         };
     }
-}
+};
