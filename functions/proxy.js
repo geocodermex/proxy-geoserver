@@ -4,7 +4,7 @@ exports.handler = async (event) => {
     const { path, rawQuery } = event;
 
     const dynamicPath = path.replace('/.netlify/functions/proxy/', '');
-    const baseUrl = `http://ec2-50-16-5-92.compute-1.amazonaws.com:8080/geoserver/${dynamicPath}`;
+    const baseUrl = `http://ec2-54-157-195-16.compute-1.amazonaws.com:8080/geoserver/${dynamicPath}`;
     const url = rawQuery ? `${baseUrl}?${rawQuery}` : baseUrl;
 
     try {
